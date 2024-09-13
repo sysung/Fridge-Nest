@@ -2335,6 +2335,24 @@ files = [
 torch = "*"
 
 [[package]]
+name = "timm"
+version = "1.0.9"
+description = "PyTorch Image Models"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "timm-1.0.9-py3-none-any.whl", hash = "sha256:ce5a4bac57a6cbb2be4ee35dc4ce689eede10d647e48dd1836106e2cc199693b"},
+    {file = "timm-1.0.9.tar.gz", hash = "sha256:69523aa2c34820cc6db37005302b5e42ddd60c30f476643f133ead4a8c5b5533"},
+]
+
+[package.dependencies]
+huggingface_hub = "*"
+pyyaml = "*"
+safetensors = "*"
+torch = "*"
+torchvision = "*"
+
+[[package]]
 name = "tokenizers"
 version = "0.19.1"
 description = ""
@@ -2790,4 +2808,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "e6c3da664a58c3576ea8eb8cda7e46d65c8b46a074b61aaa719b3b8b70325105"
+content-hash = "68e022fd6bdb95a5200fed82ffc82fe947b28ce7e79b2d7c255d4c3995e02b9a"
