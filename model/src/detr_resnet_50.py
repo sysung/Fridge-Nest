@@ -1,3 +1,17 @@
+"""
+This script processes an input image to detect objects using a pre-trained DETR model, filters the detections based on a confidence score threshold, and plots the results.
+
+Usage:
+    python detr_resnet_50.py <image_path> [--threshold 0.7]
+
+Arguments:
+    <image_path>      The path to the image file (required).
+    --threshold       The confidence score threshold for filtering detections (default is 0.7).
+
+Example:
+    python detr_resnet_50.py image.jpg --threshold 0.7
+"""
+
 import argparse
 from transformers import DetrImageProcessor, DetrForObjectDetection
 from PIL import Image
@@ -11,7 +25,7 @@ def load_model_and_processor():
     model.eval()
     return processor, model
 
-def perform_and_filter_detection(processor, model, image, threshold):
+def predict(processor, model, image, threshold):
     inputs = processor(images=image, return_tensors="pt")
     with torch.no_grad():
         outputs = model(**inputs)
@@ -48,11 +62,12 @@ def plot_results(pil_img, scores, boxes, labels, model):
                 linewidth=3,
             )
         )
-        text = f"{score:.2f}"
-        ax.text(xmin, ymin, text, fontsize=15, bbox=dict(facecolor="yellow", alpha=0.5))
+        label_name = model.config.id2label[label.item()]
+        text = f"{label_name}: {score:.2f}"
+        ax.text(xmin, ymin, text, fontsize=7, bbox=dict(facecolor="yellow", alpha=0.5))
         box = [round(i.item(), 2) for i in [xmin, ymin, xmax, ymax]]
         print(
-            f"Detected {model.config.id2label[label.item()]} with confidence "
+            f"Detected {label_name} with confidence "
             f"{round(score.item(), 3)} at location {box}"
         )
     plt.axis("off")
@@ -68,7 +83,7 @@ def main(image_path, threshold=0.7):
     """
     processor, model = load_model_and_processor()
     image = Image.open(image_path)
-    scores, boxes, labels = perform_and_filter_detection(processor, model, image, threshold)
+    scores, boxes, labels = predict(processor, model, image, threshold)
     plot_results(image, scores, boxes, labels, model)
 
 if __name__ == "__main__":

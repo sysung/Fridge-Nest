@@ -1,15 +1,16 @@
 """
-Module for downloading images using DuckDuckGo.
-
 This script allows you to download a specified number of images from DuckDuckGo based on a search query and save them to a designated folder.
 
 Usage:
-    python download_images.py -q "food in fridge" -n 5 -f "../data/ddgs"
+        python detr_resnet_50.py -q <query> -n <number_of_images> -f <folder_path>
 
 Arguments:
     -q, --query       The search query for DuckDuckGo (required).
     -n, --num_images  The number of images to download (default is 5).
     -f, --folder_path The path where the images will be saved (required).
+
+Example:
+    python download_images.py -q "food in fridge" -n 5 -f "../data/ddgs"
 """
 
 import argparse
