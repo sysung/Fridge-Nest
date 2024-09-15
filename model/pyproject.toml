@@ -17,6 +17,7 @@ duckduckgo-search = "^6.2.11"
 opencv-python = "^4.10.0.84"
 matplotlib = "^3.9.2"
 timm = "^1.0.9"
+datasets = "^3.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
