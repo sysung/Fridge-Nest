@@ -1,3 +1,11 @@
 .venv
 .DS_Store
 .vscode
+.env
+
+# Ultralytics YOLO
+yolo11n.pt
+
+# Mlflow
+mlartifacts
+mlruns
