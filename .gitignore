@@ -2,7 +2,7 @@
 .DS_Store
 .vscode
 .env
-data
+data/*
 
 # Ultralytics YOLO
 yolo11n.pt
