@@ -2,9 +2,13 @@
 .DS_Store
 .vscode
 .env
+data
 
 # Ultralytics YOLO
 yolo11n.pt
+
+# Label Studio
+mydata
 
 # Mlflow
 mlartifacts

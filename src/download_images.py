@@ -1,70 +1,80 @@
-import requests
-import os
-import json
+"""
+DuckDuckGo Image Downloader Script
 
+This script downloads images from DuckDuckGo based on a search query. The images are saved in a specified output directory.
+
+Usage:
+    python src/download_images.py 
+
+Example:
+    To download 5 images of "cats" and save them to the "data/cats" directory:
+        python src/download_images.py
+        Enter your search query: refrigerator
+        Enter the number of images to download: 50
+"""
+
+import os
+import requests
 from urllib.parse import urlparse
 from pathlib import Path
 from dotenv import load_dotenv
+from duckduckgo_search import DDGS
 
 load_dotenv()
 
-# Replace with your Unsplash Access Key
-UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 
-def download_images_unsplash(query, num_images=10, output_dir="data"):
-    """Downloads images from Unsplash based on a query."""
+def download_images_duckduckgo(query, num_images=10, output_dir="data"):
+    """Downloads images from DuckDuckGo based on a query."""
 
     os.makedirs(os.path.join(output_dir, query), exist_ok=True)
 
-    url = "https://api.unsplash.com/search/photos"
+    ddgs = DDGS()
+    results = ddgs.images(
+        query,
+        region="wt-wt",
+        safesearch="off",
+        timelimit=None,
+        size=None,
+        color=None,
+        type_image="photo",
+        layout=None,
+        license_image=None,
+    )
 
-    params = {
-        "query": query,
-        "per_page": num_images,           # Number of images per page (max is 30)
-        "page": 1, 
-        "client_id": UNSPLASH_ACCESS_KEY  # Your Unsplash API key
-    }
+    image_count = 0
+    for image_data in results:
+        if image_count >= num_images:
+            break
 
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
-        data = response.json()
+        image_url = image_data.get("image")  # Correctly access the image URL
+        if not image_url:
+            print("No image URL found in results.")
+            continue
 
-        if not data["results"]:
-            print("No images found for your query.")
-            return
+        try:
+            parsed_url = urlparse(image_url)
+            filename = os.path.basename(parsed_url.path) or "image.jpg"
+            filename = Path(filename).stem + ".jpg"  # Ensure .jpg extension
+            filepath = os.path.join(output_dir, query, filename)
+            print(f"Downloading: {image_url} as {filename}")
 
-        for image_data in data["results"]:
-            image_url = image_data["urls"]["regular"]  # Use "regular", "small", or "full" as needed
+            image_response = requests.get(image_url, stream=True, timeout=10)
+            image_response.raise_for_status()
 
-            try:
-                parsed_url = urlparse(image_url)
-                filename = os.path.basename(parsed_url.path) or "image.jpg"
-                filename = Path(filename).stem + ".jpg" # Ensure .jpg extension and prevent issues with special characters in name.
-                filepath = os.path.join(output_dir, query, filename)
+            with open(filepath, "wb") as f:
+                for chunk in image_response.iter_content(1024):
+                    f.write(chunk)
 
-                image_response = requests.get(image_url, stream=True)
-                image_response.raise_for_status()
+            print(f"Downloaded: {image_url} as {filename}")
+            image_count += 1
 
-                with open(filepath, 'wb') as f:
-                    for chunk in image_response.iter_content(1024):
-                        f.write(chunk)
-
-                print(f"Downloaded: {image_url} as {filename}")
-
-            except requests.exceptions.RequestException as e:
-                print(f"Error downloading image: {image_url} - {e}")
-            except Exception as e:
-                print(f"Error processing image URL: {image_url} - {e}")
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error searching: {e}")
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e} - Response Text: {response.text}")
-
+        except requests.exceptions.RequestException as e:
+            print(f"Error downloading image: {image_url} - {e}")
+        except Exception as e:
+            print(f"Error processing image URL: {image_url} - {e}")
 
 
 if __name__ == "__main__":
     query = input("Enter your search query: ")
     num_images_to_download = int(input("Enter the number of images to download: "))
-    download_images_unsplash(query, num_images=num_images_to_download)
+    download_images_duckduckgo(query, num_images=num_images_to_download)
